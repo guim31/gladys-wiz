@@ -1,0 +1,57 @@
+{
+  "source": "pywizlight tests/fake_bulb.py, 1.8.0-MISSING-TYPEID-0 1.8.0 (MAC and home ids replaced)",
+  "getSystemConfig": {
+    "method": "getSystemConfig",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb5000000b",
+      "homeId": 0,
+      "homeLock": false,
+      "pairingLock": false,
+      "typeId": 0,
+      "fwVersion": "1.8.0",
+      "groupId": 0,
+      "drvConf": [20, 1]
+    }
+  },
+  "getModelConfig": {
+    "method": "getModelConfig",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getUserConfig": {
+    "method": "getUserConfig",
+    "env": "pro",
+    "result": {
+      "fadeIn": 500,
+      "fadeOut": 500,
+      "fadeNight": false,
+      "dftDim": 100,
+      "pwmRange": [5, 100],
+      "whiteRange": [2700, 2700]
+    }
+  },
+  "getPower": {
+    "method": "getPower",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPilot": {
+    "method": "getPilot",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb5000000b",
+      "rssi": -58,
+      "src": "",
+      "state": true,
+      "sceneId": 0,
+      "dimming": 100
+    }
+  }
+}

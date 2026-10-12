@@ -1,0 +1,60 @@
+{
+  "source": "pywizlight tests/fake_bulb.py, ESP06_SHDW9_01 1.11.7 (MAC and home ids replaced)",
+  "getSystemConfig": {
+    "method": "getSystemConfig",
+    "env": "",
+    "result": {
+      "mac": "a8bb5000000a",
+      "homeId": 0,
+      "homeLock": false,
+      "pairingLock": false,
+      "typeId": 0,
+      "moduleName": "ESP06_SHDW9_01",
+      "fwVersion": "1.11.7",
+      "groupId": 0,
+      "drvConf": [20, 1]
+    }
+  },
+  "getModelConfig": {
+    "method": "getModelConfig",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getUserConfig": {
+    "method": "getUserConfig",
+    "env": "pro",
+    "result": {
+      "fadeIn": 450,
+      "fadeOut": 500,
+      "fadeNight": false,
+      "dftDim": 100,
+      "pwmRange": [0, 100],
+      "whiteRange": [2700, 6500],
+      "extRange": [2700, 6500]
+    }
+  },
+  "getPower": {
+    "method": "getPower",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPilot": {
+    "method": "getPilot",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb5000000a",
+      "rssi": -58,
+      "src": "",
+      "state": true,
+      "sceneId": 14,
+      "speed": 100,
+      "dimming": 10
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "source": "pywizlight tests/fake_bulb.py, ESP01_DIMTRIACS_01 1.16.68 (MAC and home ids replaced)",
+  "getSystemConfig": {
+    "method": "getSystemConfig",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb5000000c",
+      "homeId": 0,
+      "roomId": 0,
+      "homeLock": false,
+      "pairingLock": false,
+      "typeId": 0,
+      "moduleName": "ESP01_DIMTRIACS_01",
+      "fwVersion": "1.16.68",
+      "groupId": 0,
+      "drvConf": [20, 1]
+    }
+  },
+  "getModelConfig": {
+    "method": "getModelConfig",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getUserConfig": {
+    "method": "getUserConfig",
+    "env": "pro",
+    "result": {
+      "fadeIn": 500,
+      "fadeOut": 500,
+      "fadeNight": false,
+      "dftDim": 100,
+      "pwmRange": [10, 100],
+      "whiteRange": [2700, 2700],
+      "extRange": [2700, 2700],
+      "po": true
+    }
+  },
+  "getPower": {
+    "method": "getPower",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPilot": {
+    "method": "getPilot",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb5000000c",
+      "rssi": -58,
+      "src": "",
+      "state": true,
+      "sceneId": 0,
+      "dimming": 55
+    }
+  }
+}

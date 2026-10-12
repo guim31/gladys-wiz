@@ -1,0 +1,60 @@
+{
+  "source": "pywizlight tests/fake_bulb.py, ESP10_SOCKET_06 1.16.71 (MAC and home ids replaced)",
+  "getSystemConfig": {
+    "method": "getSystemConfig",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb5000000e",
+      "homeId": 0,
+      "roomId": 0,
+      "homeLock": false,
+      "pairingLock": false,
+      "typeId": 0,
+      "moduleName": "ESP10_SOCKET_06",
+      "fwVersion": "1.16.71",
+      "groupId": 0,
+      "drvConf": [20, 2]
+    }
+  },
+  "getModelConfig": {
+    "method": "getModelConfig",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getUserConfig": {
+    "method": "getUserConfig",
+    "env": "pro",
+    "result": {
+      "fadeIn": 450,
+      "fadeOut": 500,
+      "fadeNight": false,
+      "dftDim": 100,
+      "pwmRange": [0, 100],
+      "whiteRange": [2700, 6500],
+      "extRange": [2700, 6500],
+      "po": false
+    }
+  },
+  "getPower": {
+    "method": "getPower",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPilot": {
+    "method": "getPilot",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb5000000e",
+      "rssi": -58,
+      "src": "",
+      "state": true,
+      "sceneId": 0
+    }
+  }
+}

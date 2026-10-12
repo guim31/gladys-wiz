@@ -1,0 +1,60 @@
+{
+  "source": "pywizlight tests/fake_bulb.py, ESP05_SHDW_21 1.25.0 (MAC and home ids replaced)",
+  "getSystemConfig": {
+    "method": "getSystemConfig",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb50000009",
+      "homeId": 0,
+      "roomId": 0,
+      "moduleName": "ESP05_SHDW_21",
+      "fwVersion": "1.25.0",
+      "groupId": 0,
+      "drvConf": [20, 1],
+      "ewf": [255, 0, 255, 255, 0, 0, 0],
+      "ewfHex": "ff00ffff000000",
+      "ping": 0
+    }
+  },
+  "getModelConfig": {
+    "method": "getModelConfig",
+    "env": "pro",
+    "result": {
+      "ps": 1,
+      "pwmFreq": 1000,
+      "pwmRange": [5, 100],
+      "wcr": 20,
+      "nowc": 1,
+      "cctRange": [2700, 2700, 2700, 2700],
+      "renderFactor": [255, 0, 255, 255, 0, 0, 0, 0, 0, 0]
+    }
+  },
+  "getUserConfig": {
+    "method": "getUserConfig",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPower": {
+    "method": "getPower",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPilot": {
+    "method": "getPilot",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb50000009",
+      "rssi": -58,
+      "src": "",
+      "state": false,
+      "sceneId": 0,
+      "dimming": 40
+    }
+  }
+}

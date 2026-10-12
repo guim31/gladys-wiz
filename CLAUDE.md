@@ -5,9 +5,10 @@ contributors.
 
 ## What this is
 
-A Gladys Assistant **external integration**: a Node.js service (Node 22+, ESM,
-no build step) that runs in its own sandboxed Docker container and talks to
-Gladys through
+A Gladys Assistant **external integration** for WiZ lights and smart plugs
+(WiZ, Philips Smart LED Wi-Fi), driven over the local WiZ UDP protocol: a
+Node.js service (Node 22+, ESM, no build step) that runs in its own sandboxed
+Docker container and talks to Gladys through
 [`@gladysassistant/integration-sdk`](https://github.com/GladysAssistant/integration-sdk-js),
 its only runtime dependency. It started from the official JavaScript template.
 
@@ -31,16 +32,24 @@ pushing.
 ## Architecture
 
 ```
-index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
+index.js                          SDK wiring only (registerHandlers + shutdown)
+src/app.js                        every SDK handler, wired to the hub (the tests use it too)
+src/hub.js                        WizHub: discovery, polling, states, commands, trigger, /data
+src/devices.js                    WiZ device -> Gladys device, values, setPilot of each command
+src/discovery.js                  discovery broadcast (through the core) and its replies
+src/wiz/transport.js              UDP JSON client: one socket, retries, one request per device
+src/wiz/model.js                  device kinds and white range (pywizlight), colour conversion
+src/wiz/scenes.js                 the WiZ scenes, their ids and names in four languages
 src/scenes.js                     scene action handlers (manifest `scene_actions`)
 src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/texts.js                      connection status and "Search" report, four languages
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
+src/store.js                      /data/wiz-state.json (devices seen, atomic writes)
 gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
-test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (en and fr mandatory)
+test/                             node --test, against the SDK's fake Gladys and fake WiZ devices
+test/fixtures/wiz/                real WiZ answers (pywizlight tests), anonymized
+tools/fake-wiz.mjs                a simulated WiZ device on UDP 38899 (development only)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
 
@@ -70,8 +79,10 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** is in four languages (English, French, German with
+  "du", Spanish with "usted"): manifest texts, action and widget messages,
+  device, feature and scene names, and `docs/{en,fr,de,es}.md` with the same
+  sections. `test/i18n.test.js` checks them.
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -211,3 +222,45 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Fichier `LICENSE` Apache-2.0 (texte complet) à la racine.
 - `transports` : `local` seul quand le cloud n'est qu'une option annexe.
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
+
+## WiZ (gladys-wiz)
+
+**Protocole** (référence : pywizlight, MIT, et l'intégration `wiz` de Home Assistant)
+
+- JSON sur UDP, port **38899**, une requête → une réponse `{"method", "env", "result"}` ou
+  `{"error": {"code", "message"}}`. `-32601` = méthode absente du firmware (`getModelConfig` avant
+  1.22, `getPower` hors prises à mesure) : ce n'est pas une panne. UDP perd des datagrammes : renvoi
+  à 0, 0,75, 2,25 s… jusqu'à l'échéance (4 s en lecture, 6 s en commande), réponse appariée par
+  adresse source **et** `method`, une requête à la fois par appareil (`src/wiz/transport.js`).
+- `getSystemConfig` donne la MAC (identifiant stable) et `moduleName` (`ESP01_SHRGB_03` : le 2ᵉ
+  segment dit le type : `RGB` couleur, `TW` blanc réglable, `SOCKET` prise, `FANDIM` ventilateur,
+  sinon blanc variable). Firmware 1.8 : pas de `moduleName`, seulement `typeId: 0`. La plage de
+  blanc vient de `getModelConfig.cctRange` (1.22+) ou de `getUserConfig.extRange`/`whiteRange`.
+- `setPilot` : `state`, `dimming` (10-100), `r`/`g`/`b` + `c`/`w` (blancs), `temp` (K), `sceneId`,
+  `speed` (10-200). **La vitesse est ignorée si `state` est dans le même `setPilot`** : l'envoyer
+  seule. Une couleur RVB se convertit comme pywizlight (`rgb2rgbcw`) ; l'inverse n'est pas exact,
+  d'où `sentColor` qui republie la couleur envoyée tant que l'ampoule montre les mêmes canaux.
+- Listes de scènes par type : `TW_SCENES`, `DW_SCENES` de pywizlight ; 1000 (Rythme) et 256-265
+  (modes perso) ne se lancent pas.
+
+**Découverte et pont Docker**
+
+- Découverte = `udp-active-broadcast` du cœur (déclaré dans `network_discovery`, port 38899) avec
+  la requête de pywizlight (`registration`, `register: false`, ≤ 512 octets) ; chaque appareil
+  répond avec sa MAC. 1 scan / 10 s par intégration : 429 ou 409 sont « occupé », 403 un cœur
+  sans la fonction. Présente dans le cœur depuis 5.1.x (vérifié sur `v5.1.1` et `v5.2.0`).
+- **Pas de push** : `syncPilot` n'est envoyé qu'à l'IP donnée dans `registration` (port 38900),
+  que le LAN ne peut pas joindre (conteneur sur un pont, aucun port publié). Interrogation par
+  minuteur interne (`should_poll: false`), 15 s par défaut.
+- L'unicast traverse le NAT dans les deux sens : vérifié sur un pont Docker contre
+  `tools/fake-wiz.mjs` dans le conteneur verrouillé (`--read-only --cap-drop ALL`, 256 Mo).
+
+**Choix de conception**
+
+- Injoignable après 2 lectures sans réponse : éclairage publié à 0 (cas courant : interrupteur
+  mural), badge `unreachable`, déclencheur `source: power`. Retour avec `state: true` → déclencheur
+  `on`/`power`. Une commande de Gladys ne déclenche jamais (`applyReading(..., { own: true })`) ;
+  une lecture partie avant une commande est jetée (`commandSeq`).
+- On ne stocke dans `/data` que `mac`, `moduleName`, `fwVersion`, `typeId` (pas `homeId`/`roomId`).
+- Les états passent par `publishChangedStates` du SDK (dédoublonnage, oubli automatique à la
+  création d'un appareil) ; `record.published` ne sert qu'à savoir quand relancer le widget.
