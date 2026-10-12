@@ -1,0 +1,69 @@
+{
+  "source": "pywizlight tests/fake_bulb.py, ESP03_FANDIMS_31 1.31.32 (MAC and home ids replaced)",
+  "getSystemConfig": {
+    "method": "getSystemConfig",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb5000000d",
+      "homeId": 0,
+      "roomId": 0,
+      "rgn": "eu",
+      "moduleName": "ESP03_FANDIMS_31",
+      "fwVersion": "1.31.32",
+      "groupId": 0,
+      "ping": 0
+    }
+  },
+  "getModelConfig": {
+    "method": "getModelConfig",
+    "env": "pro",
+    "result": {
+      "ps": 1,
+      "pwmFreq": 200,
+      "pwmRange": [0, 100],
+      "wcr": 20,
+      "nowc": 1,
+      "cctRange": [2700, 2700, 2700, 2700],
+      "renderFactor": [255, 0, 255, 255, 0, 0, 0, 0, 0, 0],
+      "fanSpeed": 6,
+      "wizc1": {
+        "mode": [0, 0, 0, 0, 0, 0, 0]
+      },
+      "wizc2": {
+        "mode": [0, 0, 0, 0, 0, 0, 0]
+      }
+    }
+  },
+  "getUserConfig": {
+    "method": "getUserConfig",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPower": {
+    "method": "getPower",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPilot": {
+    "method": "getPilot",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb5000000d",
+      "rssi": -58,
+      "src": "",
+      "state": true,
+      "sceneId": 0,
+      "dimming": 100,
+      "fanState": 0,
+      "fanMode": 1,
+      "fanSpeed": 1,
+      "fanRevrs": 0
+    }
+  }
+}

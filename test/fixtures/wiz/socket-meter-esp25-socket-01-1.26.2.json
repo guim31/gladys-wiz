@@ -1,0 +1,51 @@
+{
+  "source": "pywizlight tests/fake_bulb.py, ESP25_SOCKET_01 1.26.2 (MAC and home ids replaced)",
+  "getSystemConfig": {
+    "method": "getSystemConfig",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb50000010",
+      "homeId": 0,
+      "roomId": 0,
+      "rgn": "eu",
+      "moduleName": "ESP25_SOCKET_01",
+      "fwVersion": "1.26.2",
+      "groupId": 0,
+      "ping": 0
+    }
+  },
+  "getModelConfig": {
+    "method": "getModelConfig",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getUserConfig": {
+    "method": "getUserConfig",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPower": {
+    "method": "getPower",
+    "env": "pro",
+    "result": {
+      "power": 1065385
+    }
+  },
+  "getPilot": {
+    "method": "getPilot",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb50000010",
+      "rssi": -58,
+      "src": "",
+      "state": true,
+      "sceneId": 0
+    }
+  }
+}

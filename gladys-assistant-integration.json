@@ -1,177 +1,1151 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "WiZ",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "WiZ bulbs, light strips and plugs on the local network: colors, whites, WiZ scenes.",
+    "fr": "Ampoules, rubans et prises WiZ en réseau local : couleurs, blancs, scènes WiZ.",
+    "de": "WiZ-Lampen, LED-Streifen und Steckdosen im lokalen Netzwerk: Farben, Weißtöne, WiZ-Szenen.",
+    "es": "Bombillas, tiras LED y enchufes WiZ en la red local: colores, blancos, escenas WiZ."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "docker_image": "ghcr.io/guim31/gladys-wiz:1.0.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-wiz/main/cover.png",
+  "categories": ["lighting"],
+  "transports": ["local"],
+  "network_discovery": [
+    {
+      "type": "udp-active-broadcast",
+      "ports": [38899]
+    }
+  ],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Finding your WiZ devices",
+        "fr": "Trouver vos appareils WiZ",
+        "de": "Deine WiZ-Geräte finden",
+        "es": "Encontrar sus dispositivos WiZ"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "WiZ lights and plugs on the same network as Gladys are found automatically: open the Discovery tab. Keep them set up in the WiZ app, with \"Allow local communication\" turned on. If one is missing, enter its IP address below.",
+        "fr": "Les lampes et prises WiZ du même réseau que Gladys sont trouvées automatiquement : ouvrez l'onglet Découverte. Gardez-les configurées dans l'application WiZ, avec « Autoriser la communication locale » activé. S'il en manque une, saisissez son adresse IP ci-dessous.",
+        "de": "WiZ-Lampen und -Steckdosen im selben Netzwerk wie Gladys werden automatisch gefunden: Öffne den Tab „Entdecken“. Lass sie in der WiZ-App eingerichtet, mit aktivierter „Lokale Kommunikation zulassen“. Fehlt eine, gib unten ihre IP-Adresse ein.",
+        "es": "Las luces y enchufes WiZ de la misma red que Gladys se encuentran automáticamente: abra la pestaña Descubrir. Manténgalos configurados en la aplicación WiZ, con «Permitir la comunicación local» activado. Si falta alguno, introduzca su dirección IP a continuación."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/guim31/gladys-wiz/blob/main/docs/en.md",
+          "label": {
+            "en": "Setup guide",
+            "fr": "Guide d'installation",
+            "de": "Installationsanleitung",
+            "es": "Guía de instalación"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "hosts",
+      "type": "string",
+      "label": {
+        "en": "IP addresses of WiZ devices",
+        "fr": "Adresses IP des appareils WiZ",
+        "de": "IP-Adressen der WiZ-Geräte",
+        "es": "Direcciones IP de los dispositivos WiZ"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
-    },
-    {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
       "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+        "en": "Optional, separated by commas. Only needed for the devices automatic discovery does not find.",
+        "fr": "Facultatif, séparées par des virgules. Seulement pour les appareils que la découverte automatique ne trouve pas.",
+        "de": "Optional, durch Kommas getrennt. Nur für Geräte nötig, die die automatische Erkennung nicht findet.",
+        "es": "Opcional, separadas por comas. Solo para los dispositivos que el descubrimiento automático no encuentra."
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
+      "placeholder": {
+        "en": "e.g. 192.168.1.50, 192.168.1.51",
+        "fr": "ex. 192.168.1.50, 192.168.1.51",
+        "de": "z. B. 192.168.1.50, 192.168.1.51",
+        "es": "p. ej. 192.168.1.50, 192.168.1.51"
+      },
       "required": false,
-      "default": "celsius",
+      "default": ""
+    },
+    {
+      "key": "poll_interval",
+      "type": "select",
+      "label": {
+        "en": "Refresh interval",
+        "fr": "Intervalle d'actualisation",
+        "de": "Aktualisierungsintervall",
+        "es": "Intervalo de actualización"
+      },
+      "description": {
+        "en": "How often each device is read, to follow the changes made from the WiZ app, a remote or a wall switch.",
+        "fr": "Fréquence de lecture de chaque appareil, pour suivre les changements faits depuis l'application WiZ, une télécommande ou un interrupteur mural.",
+        "de": "Wie oft jedes Gerät gelesen wird, um Änderungen aus der WiZ-App, über eine Fernbedienung oder einen Wandschalter zu verfolgen.",
+        "es": "Frecuencia de lectura de cada dispositivo, para seguir los cambios hechos desde la aplicación WiZ, un mando o un interruptor de pared."
+      },
+      "required": false,
+      "default": "15",
       "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+        {
+          "value": "5",
+          "label": {
+            "en": "5 seconds",
+            "fr": "5 secondes",
+            "de": "5 Sekunden",
+            "es": "5 segundos"
+          }
+        },
+        {
+          "value": "10",
+          "label": {
+            "en": "10 seconds",
+            "fr": "10 secondes",
+            "de": "10 Sekunden",
+            "es": "10 segundos"
+          }
+        },
+        {
+          "value": "15",
+          "label": {
+            "en": "15 seconds",
+            "fr": "15 secondes",
+            "de": "15 Sekunden",
+            "es": "15 segundos"
+          }
+        },
+        {
+          "value": "30",
+          "label": {
+            "en": "30 seconds",
+            "fr": "30 secondes",
+            "de": "30 Sekunden",
+            "es": "30 segundos"
+          }
+        },
+        {
+          "value": "60",
+          "label": {
+            "en": "60 seconds",
+            "fr": "60 secondes",
+            "de": "60 Sekunden",
+            "es": "60 segundos"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the device names",
+        "fr": "Langue des noms des appareils",
+        "de": "Sprache der Gerätenamen",
+        "es": "Idioma de los nombres de los dispositivos"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Names given to new devices, their features and the WiZ scene list (Light, Brightness, Ocean...).",
+        "fr": "Noms donnés aux nouveaux appareils, à leurs fonctionnalités et à la liste des scènes WiZ (Éclairage, Luminosité, Océan…).",
+        "de": "Namen, die neuen Geräten, ihren Funktionen und der WiZ-Szenenliste gegeben werden (Licht, Helligkeit, Ozean…).",
+        "es": "Nombres dados a los nuevos dispositivos, a sus funciones y a la lista de escenas WiZ (Luz, Brillo, Océano…)."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
+      "key": "search",
+      "label": {
+        "en": "Search for WiZ devices",
+        "fr": "Rechercher les appareils WiZ",
+        "de": "WiZ-Geräte suchen",
+        "es": "Buscar dispositivos WiZ"
+      },
+      "description": {
+        "en": "Looks for WiZ devices again and reports the ones found.",
+        "fr": "Recherche à nouveau les appareils WiZ et liste ceux trouvés.",
+        "de": "Sucht erneut nach WiZ-Geräten und listet die gefundenen auf.",
+        "es": "Busca de nuevo los dispositivos WiZ e indica los encontrados."
+      },
+      "timeout_seconds": 60
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "switched_outside_gladys",
+      "label": {
+        "en": "WiZ device switched outside Gladys",
+        "fr": "Appareil WiZ allumé ou éteint hors de Gladys",
+        "de": "WiZ-Gerät außerhalb von Gladys geschaltet",
+        "es": "Dispositivo WiZ encendido o apagado fuera de Gladys"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A WiZ light or plug was turned on or off without Gladys: from the WiZ app, a remote, a WiZ schedule, or by its power (wall switch, power cut).",
+        "fr": "Une lampe ou une prise WiZ a été allumée ou éteinte sans Gladys : depuis l'application WiZ, une télécommande, un programme WiZ, ou par son alimentation (interrupteur mural, coupure de courant).",
+        "de": "Eine WiZ-Lampe oder -Steckdose wurde ohne Gladys ein- oder ausgeschaltet: über die WiZ-App, eine Fernbedienung, einen WiZ-Zeitplan oder über ihre Stromversorgung (Wandschalter, Stromausfall).",
+        "es": "Una luz o un enchufe WiZ se encendió o apagó sin Gladys: desde la aplicación WiZ, un mando, una programación WiZ o por su alimentación (interruptor de pared, corte de corriente)."
       },
       "fields": [
         {
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "label": {
+            "en": "WiZ device",
+            "fr": "Appareil WiZ",
+            "de": "WiZ-Gerät",
+            "es": "Dispositivo WiZ"
+          }
         },
         {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
+          "key": "state",
+          "type": "select",
+          "label": {
+            "en": "Turned",
+            "fr": "Allumé ou éteint",
+            "de": "Geschaltet",
+            "es": "Encendido o apagado"
+          },
+          "description": {
+            "en": "Leave empty for both.",
+            "fr": "Laisser vide pour les deux.",
+            "de": "Leer lassen für beides.",
+            "es": "Déjelo vacío para ambos."
+          },
           "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
+            {
+              "value": "on",
+              "label": {
+                "en": "On",
+                "fr": "Allumé",
+                "de": "Ein",
+                "es": "Encendido"
+              }
+            },
+            {
+              "value": "off",
+              "label": {
+                "en": "Off",
+                "fr": "Éteint",
+                "de": "Aus",
+                "es": "Apagado"
+              }
+            }
+          ]
+        },
+        {
+          "key": "source",
+          "type": "multi_select",
+          "label": {
+            "en": "From",
+            "fr": "Depuis",
+            "de": "Über",
+            "es": "Desde"
+          },
+          "options": [
+            {
+              "value": "wiz",
+              "label": {
+                "en": "WiZ app, remote or schedule",
+                "fr": "Application WiZ, télécommande ou programme",
+                "de": "WiZ-App, Fernbedienung oder Zeitplan",
+                "es": "Aplicación WiZ, mando o programación"
+              }
+            },
+            {
+              "value": "power",
+              "label": {
+                "en": "Wall switch or power cut",
+                "fr": "Interrupteur mural ou coupure de courant",
+                "de": "Wandschalter oder Stromausfall",
+                "es": "Interruptor de pared o corte de corriente"
+              }
+            }
           ]
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "state",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "New state (on, off)",
+            "fr": "Nouvel état (on, off)",
+            "de": "Neuer Zustand (on, off)",
+            "es": "Nuevo estado (on, off)"
+          }
+        },
+        {
+          "key": "source",
+          "type": "string",
+          "label": {
+            "en": "Origin (wiz, power)",
+            "fr": "Origine (wiz, power)",
+            "de": "Ursprung (wiz, power)",
+            "es": "Origen (wiz, power)"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "start_scene",
+      "label": {
+        "en": "Start a WiZ scene",
+        "fr": "Lancer une scène WiZ",
+        "de": "WiZ-Szene starten",
+        "es": "Iniciar una escena WiZ"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "Turns the light on and starts one of its built-in WiZ scenes, with an optional brightness and speed.",
+        "fr": "Allume la lampe et lance l'une de ses scènes WiZ intégrées, avec luminosité et vitesse facultatives.",
+        "de": "Schaltet die Lampe ein und startet eine ihrer eingebauten WiZ-Szenen, optional mit Helligkeit und Geschwindigkeit.",
+        "es": "Enciende la luz e inicia una de sus escenas WiZ integradas, con brillo y velocidad opcionales."
+      },
+      "timeout_seconds": 20,
       "fields": [
         {
           "key": "device",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
+          "label": {
+            "en": "WiZ light",
+            "fr": "Lampe WiZ",
+            "de": "WiZ-Lampe",
+            "es": "Luz WiZ"
+          },
           "required": true
+        },
+        {
+          "key": "scene",
+          "type": "select",
+          "label": {
+            "en": "WiZ scene",
+            "fr": "Scène WiZ",
+            "de": "WiZ-Szene",
+            "es": "Escena WiZ"
+          },
+          "required": true,
+          "options": [
+            {
+              "value": "1",
+              "label": {
+                "en": "Ocean",
+                "fr": "Océan",
+                "de": "Ozean",
+                "es": "Océano"
+              }
+            },
+            {
+              "value": "2",
+              "label": {
+                "en": "Romance",
+                "fr": "Romance",
+                "de": "Romantik",
+                "es": "Romance"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "Sunset",
+                "fr": "Coucher de soleil",
+                "de": "Sonnenuntergang",
+                "es": "Puesta de sol"
+              }
+            },
+            {
+              "value": "4",
+              "label": {
+                "en": "Party",
+                "fr": "Fête",
+                "de": "Party",
+                "es": "Fiesta"
+              }
+            },
+            {
+              "value": "5",
+              "label": {
+                "en": "Fireplace",
+                "fr": "Cheminée",
+                "de": "Kamin",
+                "es": "Chimenea"
+              }
+            },
+            {
+              "value": "6",
+              "label": {
+                "en": "Cozy",
+                "fr": "Cosy",
+                "de": "Gemütlich",
+                "es": "Acogedor"
+              }
+            },
+            {
+              "value": "7",
+              "label": {
+                "en": "Forest",
+                "fr": "Forêt",
+                "de": "Wald",
+                "es": "Bosque"
+              }
+            },
+            {
+              "value": "8",
+              "label": {
+                "en": "Pastel colors",
+                "fr": "Couleurs pastel",
+                "de": "Pastellfarben",
+                "es": "Colores pastel"
+              }
+            },
+            {
+              "value": "9",
+              "label": {
+                "en": "Wake-up",
+                "fr": "Réveil",
+                "de": "Aufwachen",
+                "es": "Despertar"
+              }
+            },
+            {
+              "value": "10",
+              "label": {
+                "en": "Bedtime",
+                "fr": "Coucher",
+                "de": "Schlafenszeit",
+                "es": "Hora de dormir"
+              }
+            },
+            {
+              "value": "11",
+              "label": {
+                "en": "Warm white",
+                "fr": "Blanc chaud",
+                "de": "Warmweiß",
+                "es": "Blanco cálido"
+              }
+            },
+            {
+              "value": "12",
+              "label": {
+                "en": "Daylight",
+                "fr": "Lumière du jour",
+                "de": "Tageslicht",
+                "es": "Luz de día"
+              }
+            },
+            {
+              "value": "13",
+              "label": {
+                "en": "Cool white",
+                "fr": "Blanc froid",
+                "de": "Kaltweiß",
+                "es": "Blanco frío"
+              }
+            },
+            {
+              "value": "14",
+              "label": {
+                "en": "Night light",
+                "fr": "Veilleuse",
+                "de": "Nachtlicht",
+                "es": "Luz nocturna"
+              }
+            },
+            {
+              "value": "15",
+              "label": {
+                "en": "Focus",
+                "fr": "Concentration",
+                "de": "Fokus",
+                "es": "Concentración"
+              }
+            },
+            {
+              "value": "16",
+              "label": {
+                "en": "Relax",
+                "fr": "Détente",
+                "de": "Entspannung",
+                "es": "Relajación"
+              }
+            },
+            {
+              "value": "17",
+              "label": {
+                "en": "True colors",
+                "fr": "Vraies couleurs",
+                "de": "Echte Farben",
+                "es": "Colores reales"
+              }
+            },
+            {
+              "value": "18",
+              "label": {
+                "en": "TV time",
+                "fr": "Télévision",
+                "de": "Fernsehzeit",
+                "es": "Hora de la tele"
+              }
+            },
+            {
+              "value": "19",
+              "label": {
+                "en": "Plant growth",
+                "fr": "Croissance des plantes",
+                "de": "Pflanzenwachstum",
+                "es": "Crecimiento de plantas"
+              }
+            },
+            {
+              "value": "20",
+              "label": {
+                "en": "Spring",
+                "fr": "Printemps",
+                "de": "Frühling",
+                "es": "Primavera"
+              }
+            },
+            {
+              "value": "21",
+              "label": {
+                "en": "Summer",
+                "fr": "Été",
+                "de": "Sommer",
+                "es": "Verano"
+              }
+            },
+            {
+              "value": "22",
+              "label": {
+                "en": "Fall",
+                "fr": "Automne",
+                "de": "Herbst",
+                "es": "Otoño"
+              }
+            },
+            {
+              "value": "23",
+              "label": {
+                "en": "Deep dive",
+                "fr": "Plongée",
+                "de": "Tiefsee",
+                "es": "Inmersión"
+              }
+            },
+            {
+              "value": "24",
+              "label": {
+                "en": "Jungle",
+                "fr": "Jungle",
+                "de": "Dschungel",
+                "es": "Selva"
+              }
+            },
+            {
+              "value": "25",
+              "label": {
+                "en": "Mojito",
+                "fr": "Mojito",
+                "de": "Mojito",
+                "es": "Mojito"
+              }
+            },
+            {
+              "value": "26",
+              "label": {
+                "en": "Club",
+                "fr": "Club",
+                "de": "Club",
+                "es": "Club"
+              }
+            },
+            {
+              "value": "27",
+              "label": {
+                "en": "Christmas",
+                "fr": "Noël",
+                "de": "Weihnachten",
+                "es": "Navidad"
+              }
+            },
+            {
+              "value": "28",
+              "label": {
+                "en": "Halloween",
+                "fr": "Halloween",
+                "de": "Halloween",
+                "es": "Halloween"
+              }
+            },
+            {
+              "value": "29",
+              "label": {
+                "en": "Candlelight",
+                "fr": "Bougie",
+                "de": "Kerzenlicht",
+                "es": "Luz de velas"
+              }
+            },
+            {
+              "value": "30",
+              "label": {
+                "en": "Golden white",
+                "fr": "Blanc doré",
+                "de": "Goldweiß",
+                "es": "Blanco dorado"
+              }
+            },
+            {
+              "value": "31",
+              "label": {
+                "en": "Pulse",
+                "fr": "Pulsation",
+                "de": "Puls",
+                "es": "Pulso"
+              }
+            },
+            {
+              "value": "32",
+              "label": {
+                "en": "Steampunk",
+                "fr": "Steampunk",
+                "de": "Steampunk",
+                "es": "Steampunk"
+              }
+            },
+            {
+              "value": "33",
+              "label": {
+                "en": "Diwali",
+                "fr": "Diwali",
+                "de": "Diwali",
+                "es": "Diwali"
+              }
+            },
+            {
+              "value": "34",
+              "label": {
+                "en": "White",
+                "fr": "Blanc",
+                "de": "Weiß",
+                "es": "Blanco"
+              }
+            },
+            {
+              "value": "35",
+              "label": {
+                "en": "Alarm",
+                "fr": "Alarme",
+                "de": "Alarm",
+                "es": "Alarma"
+              }
+            },
+            {
+              "value": "36",
+              "label": {
+                "en": "Snowy sky",
+                "fr": "Ciel enneigé",
+                "de": "Schneehimmel",
+                "es": "Cielo nevado"
+              }
+            },
+            {
+              "value": "40",
+              "label": {
+                "en": "Dim to warm",
+                "fr": "Variation chaude",
+                "de": "Warm dimmen",
+                "es": "Atenuación cálida"
+              }
+            }
+          ]
+        },
+        {
+          "key": "brightness",
+          "type": "number",
+          "label": {
+            "en": "Brightness (10-100 %, optional)",
+            "fr": "Luminosité (10-100 %, facultative)",
+            "de": "Helligkeit (10-100 %, optional)",
+            "es": "Brillo (10-100 %, opcional)"
+          },
+          "required": false,
+          "min": 10,
+          "max": 100
+        },
+        {
+          "key": "speed",
+          "type": "number",
+          "label": {
+            "en": "Speed (10-200 %, optional)",
+            "fr": "Vitesse (10-200 %, facultative)",
+            "de": "Geschwindigkeit (10-200 %, optional)",
+            "es": "Velocidad (10-200 %, opcional)"
+          },
+          "description": {
+            "en": "Pace of the moving scenes: 100 is their normal speed.",
+            "fr": "Rythme des scènes animées : 100 est leur vitesse normale.",
+            "de": "Tempo der bewegten Szenen: 100 ist ihre normale Geschwindigkeit.",
+            "es": "Ritmo de las escenas animadas: 100 es su velocidad normal."
+          },
+          "required": false,
+          "min": 10,
+          "max": 200
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "scene_id",
+          "type": "number",
+          "label": {
+            "en": "Scene number",
+            "fr": "Numéro de la scène",
+            "de": "Szenennummer",
+            "es": "Número de la escena"
+          }
+        },
+        {
+          "key": "scene_name",
+          "type": "string",
+          "label": {
+            "en": "Scene name",
+            "fr": "Nom de la scène",
+            "de": "Szenenname",
+            "es": "Nombre de la escena"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "wiz",
+      "label": {
+        "en": "WiZ",
+        "fr": "WiZ",
+        "de": "WiZ",
+        "es": "WiZ"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Favorite WiZ scenes in one tap, the current scene or white, and an on/off button.",
+        "fr": "Scènes WiZ favorites en un geste, scène ou blanc en cours, et un bouton marche/arrêt.",
+        "de": "Lieblings-WiZ-Szenen per Tippen, aktuelle Szene oder Weißton und ein Ein/Aus-Knopf.",
+        "es": "Escenas WiZ favoritas con un toque, la escena o el blanco actual y un botón de encendido."
+      },
+      "icon": "sun",
+      "action_timeout_seconds": 15,
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "WiZ device",
+            "fr": "Appareil WiZ",
+            "de": "WiZ-Gerät",
+            "es": "Dispositivo WiZ"
+          },
+          "required": true
+        },
+        {
+          "key": "scenes",
+          "type": "multi_select",
+          "label": {
+            "en": "Scene buttons",
+            "fr": "Boutons de scènes",
+            "de": "Szenen-Schaltflächen",
+            "es": "Botones de escenas"
+          },
+          "description": {
+            "en": "Up to three scenes shown as one-tap buttons, among those the light can run.",
+            "fr": "Jusqu'à trois scènes affichées en boutons, parmi celles que la lampe sait lancer.",
+            "de": "Bis zu drei Szenen als Schaltflächen zum Antippen, unter denen, die die Lampe kann.",
+            "es": "Hasta tres escenas mostradas como botones de un toque, entre las que la luz puede iniciar."
+          },
+          "required": false,
+          "default": ["11", "16", "14"],
+          "options": [
+            {
+              "value": "1",
+              "label": {
+                "en": "Ocean",
+                "fr": "Océan",
+                "de": "Ozean",
+                "es": "Océano"
+              }
+            },
+            {
+              "value": "2",
+              "label": {
+                "en": "Romance",
+                "fr": "Romance",
+                "de": "Romantik",
+                "es": "Romance"
+              }
+            },
+            {
+              "value": "3",
+              "label": {
+                "en": "Sunset",
+                "fr": "Coucher de soleil",
+                "de": "Sonnenuntergang",
+                "es": "Puesta de sol"
+              }
+            },
+            {
+              "value": "4",
+              "label": {
+                "en": "Party",
+                "fr": "Fête",
+                "de": "Party",
+                "es": "Fiesta"
+              }
+            },
+            {
+              "value": "5",
+              "label": {
+                "en": "Fireplace",
+                "fr": "Cheminée",
+                "de": "Kamin",
+                "es": "Chimenea"
+              }
+            },
+            {
+              "value": "6",
+              "label": {
+                "en": "Cozy",
+                "fr": "Cosy",
+                "de": "Gemütlich",
+                "es": "Acogedor"
+              }
+            },
+            {
+              "value": "7",
+              "label": {
+                "en": "Forest",
+                "fr": "Forêt",
+                "de": "Wald",
+                "es": "Bosque"
+              }
+            },
+            {
+              "value": "8",
+              "label": {
+                "en": "Pastel colors",
+                "fr": "Couleurs pastel",
+                "de": "Pastellfarben",
+                "es": "Colores pastel"
+              }
+            },
+            {
+              "value": "9",
+              "label": {
+                "en": "Wake-up",
+                "fr": "Réveil",
+                "de": "Aufwachen",
+                "es": "Despertar"
+              }
+            },
+            {
+              "value": "10",
+              "label": {
+                "en": "Bedtime",
+                "fr": "Coucher",
+                "de": "Schlafenszeit",
+                "es": "Hora de dormir"
+              }
+            },
+            {
+              "value": "11",
+              "label": {
+                "en": "Warm white",
+                "fr": "Blanc chaud",
+                "de": "Warmweiß",
+                "es": "Blanco cálido"
+              }
+            },
+            {
+              "value": "12",
+              "label": {
+                "en": "Daylight",
+                "fr": "Lumière du jour",
+                "de": "Tageslicht",
+                "es": "Luz de día"
+              }
+            },
+            {
+              "value": "13",
+              "label": {
+                "en": "Cool white",
+                "fr": "Blanc froid",
+                "de": "Kaltweiß",
+                "es": "Blanco frío"
+              }
+            },
+            {
+              "value": "14",
+              "label": {
+                "en": "Night light",
+                "fr": "Veilleuse",
+                "de": "Nachtlicht",
+                "es": "Luz nocturna"
+              }
+            },
+            {
+              "value": "15",
+              "label": {
+                "en": "Focus",
+                "fr": "Concentration",
+                "de": "Fokus",
+                "es": "Concentración"
+              }
+            },
+            {
+              "value": "16",
+              "label": {
+                "en": "Relax",
+                "fr": "Détente",
+                "de": "Entspannung",
+                "es": "Relajación"
+              }
+            },
+            {
+              "value": "17",
+              "label": {
+                "en": "True colors",
+                "fr": "Vraies couleurs",
+                "de": "Echte Farben",
+                "es": "Colores reales"
+              }
+            },
+            {
+              "value": "18",
+              "label": {
+                "en": "TV time",
+                "fr": "Télévision",
+                "de": "Fernsehzeit",
+                "es": "Hora de la tele"
+              }
+            },
+            {
+              "value": "19",
+              "label": {
+                "en": "Plant growth",
+                "fr": "Croissance des plantes",
+                "de": "Pflanzenwachstum",
+                "es": "Crecimiento de plantas"
+              }
+            },
+            {
+              "value": "20",
+              "label": {
+                "en": "Spring",
+                "fr": "Printemps",
+                "de": "Frühling",
+                "es": "Primavera"
+              }
+            },
+            {
+              "value": "21",
+              "label": {
+                "en": "Summer",
+                "fr": "Été",
+                "de": "Sommer",
+                "es": "Verano"
+              }
+            },
+            {
+              "value": "22",
+              "label": {
+                "en": "Fall",
+                "fr": "Automne",
+                "de": "Herbst",
+                "es": "Otoño"
+              }
+            },
+            {
+              "value": "23",
+              "label": {
+                "en": "Deep dive",
+                "fr": "Plongée",
+                "de": "Tiefsee",
+                "es": "Inmersión"
+              }
+            },
+            {
+              "value": "24",
+              "label": {
+                "en": "Jungle",
+                "fr": "Jungle",
+                "de": "Dschungel",
+                "es": "Selva"
+              }
+            },
+            {
+              "value": "25",
+              "label": {
+                "en": "Mojito",
+                "fr": "Mojito",
+                "de": "Mojito",
+                "es": "Mojito"
+              }
+            },
+            {
+              "value": "26",
+              "label": {
+                "en": "Club",
+                "fr": "Club",
+                "de": "Club",
+                "es": "Club"
+              }
+            },
+            {
+              "value": "27",
+              "label": {
+                "en": "Christmas",
+                "fr": "Noël",
+                "de": "Weihnachten",
+                "es": "Navidad"
+              }
+            },
+            {
+              "value": "28",
+              "label": {
+                "en": "Halloween",
+                "fr": "Halloween",
+                "de": "Halloween",
+                "es": "Halloween"
+              }
+            },
+            {
+              "value": "29",
+              "label": {
+                "en": "Candlelight",
+                "fr": "Bougie",
+                "de": "Kerzenlicht",
+                "es": "Luz de velas"
+              }
+            },
+            {
+              "value": "30",
+              "label": {
+                "en": "Golden white",
+                "fr": "Blanc doré",
+                "de": "Goldweiß",
+                "es": "Blanco dorado"
+              }
+            },
+            {
+              "value": "31",
+              "label": {
+                "en": "Pulse",
+                "fr": "Pulsation",
+                "de": "Puls",
+                "es": "Pulso"
+              }
+            },
+            {
+              "value": "32",
+              "label": {
+                "en": "Steampunk",
+                "fr": "Steampunk",
+                "de": "Steampunk",
+                "es": "Steampunk"
+              }
+            },
+            {
+              "value": "33",
+              "label": {
+                "en": "Diwali",
+                "fr": "Diwali",
+                "de": "Diwali",
+                "es": "Diwali"
+              }
+            },
+            {
+              "value": "34",
+              "label": {
+                "en": "White",
+                "fr": "Blanc",
+                "de": "Weiß",
+                "es": "Blanco"
+              }
+            },
+            {
+              "value": "35",
+              "label": {
+                "en": "Alarm",
+                "fr": "Alarme",
+                "de": "Alarm",
+                "es": "Alarma"
+              }
+            },
+            {
+              "value": "36",
+              "label": {
+                "en": "Snowy sky",
+                "fr": "Ciel enneigé",
+                "de": "Schneehimmel",
+                "es": "Cielo nevado"
+              }
+            },
+            {
+              "value": "40",
+              "label": {
+                "en": "Dim to warm",
+                "fr": "Variation chaude",
+                "de": "Warm dimmen",
+                "es": "Atenuación cálida"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

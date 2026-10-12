@@ -1,0 +1,83 @@
+{
+  "source": "pywizlight tests/fake_bulb.py, ESP20_SHRGB_01BT 1.23.70 (MAC and home ids replaced)",
+  "getSystemConfig": {
+    "method": "getSystemConfig",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb50000005",
+      "homeId": 0,
+      "roomId": 0,
+      "rgn": "eu",
+      "moduleName": "ESP20_SHRGB_01BT",
+      "fwVersion": "1.23.70",
+      "groupId": 0,
+      "ping": 0
+    }
+  },
+  "getModelConfig": {
+    "method": "getModelConfig",
+    "env": "pro",
+    "result": {
+      "ps": 1,
+      "pwmFreq": 2000,
+      "pwmRange": [0, 100],
+      "wcr": 20,
+      "nowc": 2,
+      "cctRange": [2200, 2700, 6500, 6500],
+      "renderFactor": [200, 255, 255, 150, 0, 0, 40, 0, 0, 0],
+      "hasAdjMinDim": 0,
+      "hasTapSensor": 1,
+      "i2cTapSensor": [
+        {
+          "chip": "SC7A22",
+          "whoami": [24, 25, 15, 19],
+          "freq": 100,
+          "shockWin": 40
+        },
+        {
+          "chip": "IIS2DLPC",
+          "whoami": [24, 25, 15, 68],
+          "freq": 100,
+          "shockWin": 40
+        },
+        {
+          "chip": "DA262",
+          "whoami": [38, 39, 1, 19],
+          "freq": 100,
+          "shockWin": 50
+        }
+      ],
+      "pm": 0,
+      "fanSpeed": 0
+    }
+  },
+  "getUserConfig": {
+    "method": "getUserConfig",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPower": {
+    "method": "getPower",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPilot": {
+    "method": "getPilot",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb50000005",
+      "rssi": -58,
+      "src": "",
+      "state": true,
+      "sceneId": 5,
+      "speed": 100,
+      "dimming": 50
+    }
+  }
+}

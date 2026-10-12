@@ -1,93 +1,69 @@
+// -----------------------------------------------------------------------------
+// The `start_scene` scene action, as the core relays it: resolved fields,
+// declared outputs, errors that fail the action only.
+// -----------------------------------------------------------------------------
+
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { createFakeGladys } from '@gladysassistant/integration-sdk/testing';
-import { DEVICE_BLUEPRINTS } from '../src/devices/index.js';
-import { MOTION_DETECTED_TRIGGER, motionSensor } from '../src/devices/motionSensor.js';
-import { SCENE_ACTIONS } from '../src/scenes.js';
-import { normalizeConfig } from '../src/config.js';
+import {
+  COLOR_BULB,
+  FakeWiz,
+  METER_SOCKET,
+  TUNABLE_BULB,
+  createAll,
+  createWorld,
+  deviceId,
+} from './helpers/world.js';
 
-const manifest = JSON.parse(
-  await readFile(new URL('../gladys-assistant-integration.json', import.meta.url), 'utf8'),
-);
-const config = normalizeConfig();
+async function setup(devices, config) {
+  const world = await createWorld({ devices, config });
+  await createAll(world);
+  return world;
+}
 
-const declarationOf = (list, key) => manifest[list].find((entry) => entry.key === key);
-const keysOf = (list) => (list ?? []).map((entry) => entry.key);
-const deviceIdOf = (gladys, key) =>
-  DEVICE_BLUEPRINTS.find((bp) => bp.key === key).deviceExternalId(gladys);
-
-// Let the async interval callback run to completion.
-const flush = () => new Promise((resolve) => setImmediate(resolve));
-
-test('the motion sensor fires one motion_detected event per detection, none on the clear', async (t) => {
-  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] });
-  const gladys = createFakeGladys();
-  const stopPush = motionSensor.startPush(gladys, config);
-  try {
-    t.mock.timers.tick(60_000);
-    await flush();
-    assert.equal(gladys.fake.sceneEvents.length, 1, 'one detection, one event');
-    assert.equal(gladys.fake.sceneEvents[0].key, MOTION_DETECTED_TRIGGER);
-    assert.equal(gladys.fake.states.at(-1).state, 1, 'the state is still published');
-
-    t.mock.timers.tick(10_000);
-    await flush();
-    assert.equal(gladys.fake.states.at(-1).state, 0, 'the detection is cleared');
-    assert.equal(gladys.fake.sceneEvents.length, 1, 'the clear fires no event');
-  } finally {
-    stopPush();
-  }
-});
-
-test('motion_detected data only carries keys the trigger declares', async (t) => {
-  t.mock.timers.enable({ apis: ['setInterval', 'setTimeout'] });
-  const gladys = createFakeGladys();
-  const stopPush = motionSensor.startPush(gladys, config);
-  try {
-    t.mock.timers.tick(60_000);
-    await flush();
-  } finally {
-    stopPush();
-  }
-  const [{ data }] = gladys.fake.sceneEvents;
-  const trigger = declarationOf('scene_triggers', MOTION_DETECTED_TRIGGER);
-  // The core keeps the `fields` keys (filters) and the `variables` keys
-  // (exposed to the scene): any other key would be silently dropped.
-  const declared = [...keysOf(trigger.fields), ...keysOf(trigger.variables)];
-  for (const [key, value] of Object.entries(data)) {
-    assert.ok(declared.includes(key), `data.${key} is not declared, the core would drop it`);
-    assert.ok(value === null || typeof value !== 'object', `data.${key} must be a primitive`);
-  }
-  // A `"source": "devices"` filter stores a device external_id.
-  assert.equal(data.device, deviceIdOf(gladys, 'motion-sensor'));
-  const targets = trigger.fields.find((field) => field.key === 'target').options;
-  assert.ok(
-    targets.some((option) => option.value === data.target),
-    `data.target "${data.target}" must be one of the filter options`,
+test('starts a scene with its brightness and speed, then answers its id and name', async (t) => {
+  const bulb = new FakeWiz(COLOR_BULB, '192.0.2.10');
+  const world = await setup([bulb], { language: 'fr' });
+  t.after(() => world.app.stop());
+  const ack = await world.fake.sceneAction('start_scene', {
+    device: deviceId(world.gladys, bulb.mac),
+    scene: '3',
+    brightness: 50,
+    speed: 80,
+  });
+  assert.equal(ack.success, true, ack.error);
+  assert.deepEqual(ack.data.outputs, { scene_id: 3, scene_name: 'Coucher de soleil' });
+  const sent = bulb.received.filter((request) => request.method === 'setPilot');
+  // The speed goes alone: the firmware ignores it next to a state.
+  assert.deepEqual(
+    sent.map((request) => request.params),
+    [{ state: true, sceneId: 3, dimming: 50 }, { speed: 80 }],
   );
 });
 
-test('identify_device signals the chosen device and returns the declared outputs', async () => {
-  const gladys = createFakeGladys();
-  const outputs = await SCENE_ACTIONS.identify_device(gladys, {
-    fields: { device: deviceIdOf(gladys, 'light') },
-    config,
+test('optional fields left empty send the scene alone', async (t) => {
+  const bulb = new FakeWiz(TUNABLE_BULB, '192.0.2.10');
+  const world = await setup([bulb]);
+  t.after(() => world.app.stop());
+  const ack = await world.fake.sceneAction('start_scene', {
+    device: deviceId(world.gladys, bulb.mac),
+    scene: '11',
+    brightness: null,
+    speed: '',
   });
-  assert.deepEqual(outputs, { signalled: true });
-  const declared = keysOf(declarationOf('scene_actions', 'identify_device').outputs);
-  for (const key of Object.keys(outputs)) {
-    assert.ok(declared.includes(key), `output "${key}" is not declared, the core would drop it`);
-  }
+  assert.equal(ack.success, true, ack.error);
+  assert.deepEqual(bulb.received.at(-1).params, { state: true, sceneId: 11 });
 });
 
-test('identify_device reports a device that cannot signal itself through its output', async () => {
-  // Not a failure: a scene action is never a condition, the scene author
-  // gates the following actions on the output instead.
-  const gladys = createFakeGladys();
-  const outputs = await SCENE_ACTIONS.identify_device(gladys, {
-    fields: { device: deviceIdOf(gladys, 'weather-station') },
-    config,
-  });
-  assert.deepEqual(outputs, { signalled: false });
+test('a scene the light cannot run, a plug, an unknown device fail the action', async (t) => {
+  const bulb = new FakeWiz(TUNABLE_BULB, '192.0.2.10');
+  const socket = new FakeWiz(METER_SOCKET, '192.0.2.11');
+  const world = await setup([bulb, socket]);
+  t.after(() => world.app.stop());
+  const run = (device, scene) =>
+    world.fake.sceneAction('start_scene', { device: deviceId(world.gladys, device), scene });
+  assert.match((await run(bulb.mac, '4')).error, /cannot run the scene "Party"/);
+  assert.match((await run(socket.mac, '11')).error, /cannot run/);
+  assert.match((await run('a8bb50ffffff', '11')).error, /Unknown WiZ device/);
+  assert.match((await run(bulb.mac, '999')).error, /Unknown WiZ scene/);
 });

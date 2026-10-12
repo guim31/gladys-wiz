@@ -1,0 +1,62 @@
+{
+  "source": "pywizlight tests/fake_bulb.py, ESP20_SHRGB_01ABI 1.21.4 (MAC and home ids replaced)",
+  "getSystemConfig": {
+    "method": "getSystemConfig",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb50000002",
+      "homeId": 0,
+      "roomId": 0,
+      "moduleName": "ESP20_SHRGB_01ABI",
+      "fwVersion": "1.21.4",
+      "groupId": 0,
+      "drvConf": [80, 2],
+      "ewf": [255, 0, 255, 255, 0, 0, 0],
+      "ewfHex": "ff00ffff000000",
+      "ping": 0
+    }
+  },
+  "getModelConfig": {
+    "method": "getModelConfig",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getUserConfig": {
+    "method": "getUserConfig",
+    "env": "pro",
+    "result": {
+      "fadeIn": 450,
+      "fadeOut": 500,
+      "dftDim": 100,
+      "pwmRange": [0, 100],
+      "whiteRange": [2700, 6500],
+      "extRange": [2700, 6500],
+      "opMode": 0,
+      "po": false
+    }
+  },
+  "getPower": {
+    "method": "getPower",
+    "env": "pro",
+    "error": {
+      "code": -32601,
+      "message": "Method not found"
+    }
+  },
+  "getPilot": {
+    "method": "getPilot",
+    "env": "pro",
+    "result": {
+      "mac": "a8bb50000002",
+      "rssi": -58,
+      "src": "",
+      "state": true,
+      "sceneId": 4,
+      "speed": 120,
+      "dimming": 80
+    }
+  }
+}
