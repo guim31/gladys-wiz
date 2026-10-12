@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-12
+
 ### Added
 
 - One Gladys device per WiZ light or plug (bulbs, filament bulbs, light
@@ -30,3 +32,6 @@ the notes of the version's GitHub Release.
 - A "Search for WiZ devices" button in the Configuration screen.
 - Device and feature names, interface texts and documentation in English,
   French, German and Spanish; names in French by default.
+
+[Unreleased]: https://github.com/guim31/gladys-wiz/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/guim31/gladys-wiz/releases/tag/v1.0.0
