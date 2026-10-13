@@ -120,6 +120,17 @@ code de ce dépôt. Compléter ce fichier quand un nouveau piège est découvert
   15000, 30000, 60000). Le template publie `poll_frequency: 300` sans `should_poll` : c'est faux,
   le cœur répond 400 à la découverte. Pour une cadence hors liste, publier `should_poll: false` et
   pousser les états depuis le conteneur, en gardant un `onPoll` de repli.
+  Issue GladysAssistant/Gladys#3198 (correctif #3199 non publié) : les appareils déjà créés sans
+  `should_poll` ne seront jamais sondés, même après correction : ne jamais dépendre du seul
+  `onPoll`. Ici, le minuteur interne du hub lit tout (`test/logs.test.js` le vérifie).
+- **Logs** : le niveau info ne garde que le cycle de vie (démarrage, appareil trouvé, déplacé,
+  injoignable, de retour, une ligne par action de l'utilisateur, erreurs utiles). Les erreurs
+  répétées passent par `src/problems.js` (`ProblemLog` : une ligne au début ou quand le message
+  change, une au rétablissement, `debug` entre les deux) : refus de Gladys (clé `gladys`),
+  découverte refusée (`scan` ; 429/409 « occupé » restent en `debug`), lecture en erreur
+  (`read:<mac>`), écriture de `/data`. Une vraie erreur de programmation d'une tâche de fond reste
+  en `error` avec sa pile, une fois par message. `LOG_LEVEL=debug` donne le détail ; la variable
+  n'est pas réglable depuis l'interface de Gladys.
 - **`min` et `max` sont NOT NULL** dans `t_device_feature`, y compris pour `text/text` : sans eux,
   « Ajouter à Gladys » échoue en HTTP 422. Mettre 0/0, comme Zigbee2MQTT.
 - Un état publié sur une fonctionnalité **pas encore ajoutée** dans Gladys reçoit un 200 puis est

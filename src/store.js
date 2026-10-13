@@ -9,6 +9,7 @@
 import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createLogger } from '@gladysassistant/integration-sdk';
+import { ProblemLog } from './problems.js';
 
 const logger = createLogger({ name: 'wiz-store' });
 const FILE_NAME = 'wiz-state.json';
@@ -18,6 +19,8 @@ export class Store {
     this.directory = directory;
     this.path = join(directory, FILE_NAME);
     this.pending = null;
+    // A volume that refuses writes is said once, not at every scan.
+    this.problems = new ProblemLog(logger);
     this.writing = null;
   }
 
@@ -47,8 +50,9 @@ export class Store {
           const temporary = `${this.path}.tmp`;
           await writeFile(temporary, JSON.stringify(snapshot));
           await rename(temporary, this.path);
+          this.problems.recover('write', `${this.path} is written again`);
         } catch (err) {
-          logger.warn(`Cannot write ${this.path}: ${err.message}`);
+          this.problems.fail('write', `Cannot write ${this.path}: ${err.message}`);
         }
       });
       this.writing = this.pending;
