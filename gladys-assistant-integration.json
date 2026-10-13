@@ -8,8 +8,8 @@
     "de": "WiZ-Lampen, LED-Streifen und Steckdosen im lokalen Netzwerk: Farben, Weißtöne, WiZ-Szenen.",
     "es": "Bombillas, tiras LED y enchufes WiZ en la red local: colores, blancos, escenas WiZ."
   },
-  "version": "1.0.0",
-  "docker_image": "ghcr.io/guim31/gladys-wiz:1.0.0",
+  "version": "1.0.1",
+  "docker_image": "ghcr.io/guim31/gladys-wiz:1.0.1",
   "gladys_version": ">=5.1.0",
   "cover_image": "https://raw.githubusercontent.com/guim31/gladys-wiz/main/cover.png",
   "categories": ["lighting"],

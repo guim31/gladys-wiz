@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-13
+
 ### Changed
 
 - Quieter logs: a problem that repeats (Gladys restarting or refusing the
@@ -43,5 +45,6 @@ the notes of the version's GitHub Release.
 - Device and feature names, interface texts and documentation in English,
   French, German and Spanish; names in French by default.
 
-[Unreleased]: https://github.com/guim31/gladys-wiz/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/guim31/gladys-wiz/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/guim31/gladys-wiz/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/guim31/gladys-wiz/releases/tag/v1.0.0
