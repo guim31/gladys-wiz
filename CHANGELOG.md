@@ -10,6 +10,16 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Changed
+
+- Quieter logs: a problem that repeats (Gladys restarting or refusing the
+  updates, the discovery through Gladys not available, a device answering
+  errors, `/data` not writable) is written once when it starts and once when
+  it is over, instead of at every reading or every search. The regular
+  readings themselves write nothing.
+- When Gladys refuses the updates of the regular readings, the logs now say
+  so (once) instead of staying silent.
+
 ## [1.0.0] - 2026-10-12
 
 ### Added

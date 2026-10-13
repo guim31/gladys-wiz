@@ -11,7 +11,7 @@
 // default; Gladys never polls these devices (should_poll: false).
 // -----------------------------------------------------------------------------
 
-import { createLogger } from '@gladysassistant/integration-sdk';
+import { GladysApiError, createLogger } from '@gladysassistant/integration-sdk';
 import {
   FEATURE_KEYS,
   NO_SCENE,
@@ -25,6 +25,7 @@ import {
 } from './devices.js';
 import { mapLimit, parseScanReplies, scanRequest } from './discovery.js';
 import { LANGUAGES } from './config.js';
+import { ProblemLog } from './problems.js';
 import { CONNECTION_TEXT } from './texts.js';
 import {
   DIMMING_MAX,
@@ -68,6 +69,22 @@ const WIDGET_KEYS = [
 ];
 
 const sameValue = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+/**
+ * Gladys refused a call or did not answer (restart, network, rate limit): a
+ * passing condition, unlike a bug in the integration.
+ */
+const isGladysFailure = (err) =>
+  err instanceof GladysApiError ||
+  err?.name === 'TimeoutError' ||
+  err?.name === 'AbortError' ||
+  (err instanceof TypeError && err.message === 'fetch failed');
+
+/** "fetch failed (ECONNREFUSED)": the low-level code Node hides in `cause`. */
+const describe = (err) => {
+  const code = err?.cause?.code;
+  return code && !err.message.includes(code) ? `${err.message} (${code})` : err.message;
+};
+
 const isGiven = (value) => value !== undefined && value !== null && String(value).trim() !== '';
 
 export class WizHub {
@@ -95,6 +112,9 @@ export class WizHub {
     this.discovering = null;
     this.lastScan = { status: 'not-run', found: 0 };
     this.stopped = false;
+    // Repeated failures (Gladys refusing, a device answering errors): one
+    // line when they start and one when they end.
+    this.problems = new ProblemLog(logger);
   }
 
   // --- Lifecycle -------------------------------------------------------------
@@ -122,6 +142,7 @@ export class WizHub {
     await this.publishAllStates();
     await this.publishTransports();
     await this.publishConnectionStatus();
+    this.gladysRecovered();
     this.requestWidgetRefresh();
   }
 
@@ -167,10 +188,26 @@ export class WizHub {
   /** Keep track of background work, so the tests (and stop) can wait for it. */
   track(promise) {
     const tracked = Promise.resolve(promise)
-      .catch((err) => logger.error('Background task failed', err))
+      .catch((err) => this.backgroundFailed(err))
       .finally(() => this.pending.delete(tracked));
     this.pending.add(tracked);
     return tracked;
+  }
+
+  /**
+   * A periodic task failed. Gladys refusing or away is said once until it
+   * accepts again; a bug is logged with its stack, once per message.
+   */
+  backgroundFailed(err) {
+    if (isGladysFailure(err)) {
+      this.problems.fail('gladys', `Gladys does not take the WiZ updates: ${describe(err)}`);
+    } else {
+      this.problems.fail(`bug:${err?.message}`, 'Background task failed', 'error', err);
+    }
+  }
+
+  gladysRecovered() {
+    this.problems.recover('gladys', 'Gladys takes the WiZ updates again');
   }
 
   /** Resolves once no background work is left. */
@@ -296,12 +333,19 @@ export class WizHub {
         await this.gladys.scanNetwork('udp-active-broadcast', scanRequest()),
       );
       this.lastScan = { status: 'ok', found: found.length };
+      this.problems.recover('scan', 'WiZ discovery through Gladys works again');
       return found;
     } catch (err) {
       // 403: a core without mediated discovery; 429 or 409: a scan ran less
       // than 10 s ago. The typed and known addresses still work.
+      // Said once, not at every rediscovery; "busy" passes by itself.
       const status = err.status === 429 || err.status === 409 ? 'busy' : 'unavailable';
-      logger.warn(`WiZ discovery through Gladys failed: ${err.message}`);
+      const message = `WiZ discovery through Gladys failed: ${describe(err)}`;
+      if (status === 'busy') {
+        logger.debug(message);
+      } else {
+        this.problems.fail('scan', message);
+      }
       this.lastScan = { status, found: 0 };
       return [];
     }
@@ -390,6 +434,7 @@ export class WizHub {
     await this.publishDevices();
     await this.publishTransports();
     await this.publishConnectionStatus();
+    this.gladysRecovered();
   }
 
   // --- Devices ---------------------------------------------------------------
@@ -468,7 +513,8 @@ export class WizHub {
       try {
         await this.publishStates(record);
       } catch (err) {
-        logger.warn(`Cannot publish the states of ${record.mac}: ${err.message}`);
+        logger.debug(`Cannot publish the states of ${record.mac}: ${err.message}`);
+        this.backgroundFailed(err);
       }
     }
   }
@@ -522,9 +568,19 @@ export class WizHub {
   pollAll() {
     this.polling ??= mapLimit([...this.records.values()], POLL_CONCURRENCY, (record) =>
       this.refresh(record),
-    ).finally(() => {
-      this.polling = null;
-    });
+    )
+      .then((results) => {
+        // A device that does not answer is handled by refresh; what is left
+        // is Gladys refusing the states (or a bug).
+        const errors = results.filter((result) => result.error).map((result) => result.error);
+        errors.forEach((err) => this.backgroundFailed(err));
+        if (errors.length === 0) {
+          this.gladysRecovered();
+        }
+      })
+      .finally(() => {
+        this.polling = null;
+      });
     return this.polling;
   }
 
@@ -542,10 +598,11 @@ export class WizHub {
       if (err.unreachable) {
         await this.failed(record);
       } else {
-        logger.warn(`Cannot read ${record.host}: ${err.message}`);
+        this.problems.fail(`read:${record.mac}`, `Cannot read ${record.host}: ${err.message}`);
       }
       return;
     }
+    this.problems.recover(`read:${record.mac}`, `${this.label(record)} reads again`);
     if (seq !== record.commandSeq) {
       // A Gladys command ran meanwhile: this reading may predate it.
       return;

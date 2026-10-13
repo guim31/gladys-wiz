@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 // A complete test world: the SDK's fake Gladys, fake WiZ devices on a fake UDP
 // network, and a temporary /data, with the integration wired on top through
-// registerHandlers. No timer runs: the tests read the devices with
-// `world.hub.pollAll()`.
+// registerHandlers. No timer runs unless asked: the tests read the devices
+// with `world.hub.pollAll()`.
 // -----------------------------------------------------------------------------
 
 import { mkdtempSync } from 'node:fs';
@@ -40,6 +40,7 @@ export function allDevices() {
  * @param {boolean} [options.scan] whether the core's discovery finds them
  * @param {object} [options.config] raw integration config
  * @param {Array} [options.created] devices already created in Gladys
+ * @param {boolean} [options.timers] the hub's own timers (off: the tests poll)
  */
 export async function createWorld({
   devices = [new FakeWiz(COLOR_BULB, '192.0.2.10')],
@@ -49,6 +50,7 @@ export async function createWorld({
   connect = true,
   dataDir = mkdtempSync(join(tmpdir(), 'gladys-wiz-')),
   timings = {},
+  timers = false,
 } = {}) {
   const network = createNetwork(devices);
   const gladys = createFakeGladys({
@@ -59,7 +61,7 @@ export async function createWorld({
   const app = registerHandlers(gladys, {
     store: new Store(dataDir),
     createSocket: network.createSocket,
-    timers: false,
+    timers,
     timings,
     transportTimings: FAST_TRANSPORT,
   });
