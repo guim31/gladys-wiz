@@ -1,6 +1,6 @@
 {
   "name": "gladys-wiz",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Gladys Assistant integration for WiZ lights and smart plugs, over the local UDP protocol.",
   "type": "module",
